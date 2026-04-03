@@ -1,0 +1,54 @@
+generated_at=datetime.utcnow().isoformat(),
+        model_used="mock"
+    )
+
+# -------------------- إنشاء تطبيق FastAPI --------------------
+app = FastAPI(
+    title="Project Planning API (Mock)",
+    description="API وهمي لتوليد خطط المشاريع – خاص بـ عبدالعزيز",
+    version="1.0.0"
+)
+
+# إضافة CORS للسماح للواجهات الأمامية
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # في الإنتاج حدّد النطاقات الحقيقية
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# -------------------- نقطة النهاية (Endpoint) --------------------
+@app.post(
+    settings.api_v1_prefix + "/generate-plan",
+    response_model=GeneratePlanResponse,
+    status_code=status.HTTP_200_OK,
+    summary="توليد خطة مشروع (وهمي مبدئياً)",
+    description="يستقبل نطاق المشروع ويعيد خطة منظمة بصيغة JSON. هذه النسخة الوهمية لتمكين الواجهات."
+)
+async def generate_plan(request: GeneratePlanRequest):
+    try:
+        logger.info(f"Received request with text length: {len(request.text)}")
+        result = await generate_mock_plan(request.text)
+        logger.info(f"Generated plan_id: {result.plan_id}")
+        return result
+    except ValueError as ve:
+        logger.warning(f"Validation error: {ve}")
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="خطأ داخلي في الخادم")
+
+# -------------------- نقاط صحية إضافية --------------------
+@app.get("/health")
+async def health_check():
+    return {"status": "alive", "environment": settings.environment, "mock_mode": True}
+
+@app.get("/")
+async def root():
+    return {"message": "Project Planning API (Mock) is running. Go to /docs for Swagger UI."}
+
+# -------------------- تشغيل الخادم (اختياري إذا أردت التشغيل مباشرة) --------------------
+if name == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
