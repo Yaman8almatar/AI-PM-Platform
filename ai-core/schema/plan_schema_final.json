@@ -1,0 +1,105 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "project_name": {
+      "type": "string"
+    },
+    "wbs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "phase": {
+            "type": "string"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "phase",
+          "tasks"
+        ]
+      },
+      "minItems": 1
+    },
+    "gantt_data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "task_name": {
+            "type": "string"
+          },
+          "duration_days": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "task_name",
+          "duration_days",
+          "dependencies"
+        ]
+      },
+      "minItems": 1
+    },
+    "risk_log": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "risk": {
+            "type": "string"
+          },
+          "probability": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "impact": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "mitigation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "risk",
+          "probability",
+          "impact",
+          "mitigation"
+        ]
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "project_name",
+    "wbs",
+    "gantt_data",
+    "risk_log"
+  ]
+}
