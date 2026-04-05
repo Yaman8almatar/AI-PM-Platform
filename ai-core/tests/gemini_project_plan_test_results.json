@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "tested_module": "ai_engine.py",
+  "input_scope": "نظام لإدارة المؤتمرات الجامعية يسمح للطلاب بالتسجيل في الفعاليات ويتيح للإدارة تنظيم الجداول والسعات والإشعارات.",
+  "checks": {
+    "module_imported": true,
+    "generation_successful": true,
+    "has_project_name": true,
+    "has_wbs": true,
+    "has_gantt_data": true,
+    "has_risk_log": true
+  }
+}

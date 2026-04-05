@@ -1,0 +1,106 @@
+{
+  "info": {
+    "name": "AI PM Platform - API Tests",
+    "description": "مجموعة اختبارات مسار توليد الخطة للمشروع",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Generate Plan - Success (200 OK)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Check Response Structure\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('project_name');",
+              "    pm.expect(jsonData).to.have.property('wbs');",
+              "    pm.expect(jsonData).to.have.property('gantt_data');",
+              "    pm.expect(jsonData).to.have.property('risk_log');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"text\": \"تطبيق لإدارة المطاعم يشمل تسجيل الطلبات، نظام محاسبة، ولوحة تحكم للإدارة. المدة 4 أشهر.\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/generate-plan",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "generate-plan"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Generate Plan - Failure (Empty Text)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code should be 4xx or 5xx\", function () {",
+              "    pm.expect(pm.response.code).to.be.above(399);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"text\": \" \"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/generate-plan",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "generate-plan"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
