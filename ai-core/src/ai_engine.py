@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Set
 
 try:
     from google import genai
@@ -67,6 +67,9 @@ def get_plan_schema() -> Dict[str, Any]:
 def validate_plan(plan: Dict[str, Any]) -> List[str]:
     errors: List[str] = []
 
+    if not isinstance(plan, dict):
+        return ["Plan must be a JSON object."]
+
     required_top_keys = {"project_name", "wbs", "gantt_data", "risk_log"}
     actual_top_keys = set(plan.keys())
 
@@ -78,29 +81,68 @@ def validate_plan(plan: Dict[str, Any]) -> List[str]:
         if extra:
             errors.append(f"Extra top-level keys: {extra}")
 
-    wbs_task_names = set()
-    if isinstance(plan.get("wbs"), list):
-        for i, phase in enumerate(plan["wbs"], start=1):
+    project_name = plan.get("project_name")
+    if not isinstance(project_name, str) or not project_name.strip():
+        errors.append("project_name must be a non-empty string.")
+
+    # -------------------------
+    # WBS validation
+    # -------------------------
+    wbs_task_names: Set[str] = set()
+    wbs_items = plan.get("wbs")
+
+    if not isinstance(wbs_items, list):
+        errors.append("wbs must be an array.")
+    else:
+        if len(wbs_items) < 3:
+            errors.append("WBS must contain at least 3 phases.")
+
+        for i, phase in enumerate(wbs_items, start=1):
             if not isinstance(phase, dict):
                 errors.append(f"WBS item #{i} is not an object.")
                 continue
 
-            phase_name = phase.get("phase", f"phase_{i}")
+            phase_name = phase.get("phase")
             tasks = phase.get("tasks")
 
-            if not isinstance(tasks, list) or len(tasks) == 0:
-                errors.append(f"WBS phase '{phase_name}' must have at least one task.")
+            if not isinstance(phase_name, str) or not phase_name.strip():
+                phase_name = f"phase_{i}"
+                errors.append(f"WBS item #{i} has invalid phase name.")
+
+            if not isinstance(tasks, list):
+                errors.append(f"WBS phase '{phase_name}' must have a tasks array.")
                 continue
 
-            for task in tasks:
-                if not isinstance(task, str) or not task.strip():
-                    errors.append(f"WBS phase '{phase_name}' contains an invalid task.")
-                else:
-                    wbs_task_names.add(task.strip())
+            if len(tasks) < 3:
+                errors.append(f"WBS phase '{phase_name}' must contain at least 3 tasks.")
+                continue
 
-    gantt_task_names = set()
+            for j, task in enumerate(tasks, start=1):
+                if not isinstance(task, str) or not task.strip():
+                    errors.append(
+                        f"WBS phase '{phase_name}' contains an invalid task at position {j}."
+                    )
+                    continue
+
+                normalized_task = task.strip()
+
+                if normalized_task in wbs_task_names:
+                    errors.append(f"Duplicate WBS task name: '{normalized_task}'")
+                else:
+                    wbs_task_names.add(normalized_task)
+
+    # -------------------------
+    # Gantt validation
+    # -------------------------
+    gantt_task_names: Set[str] = set()
     gantt_items = plan.get("gantt_data")
-    if isinstance(gantt_items, list):
+
+    if not isinstance(gantt_items, list):
+        errors.append("gantt_data must be an array.")
+    else:
+        if len(gantt_items) == 0:
+            errors.append("gantt_data must not be empty.")
+
         for i, item in enumerate(gantt_items, start=1):
             if not isinstance(item, dict):
                 errors.append(f"Gantt item #{i} is not an object.")
@@ -114,9 +156,12 @@ def validate_plan(plan: Dict[str, Any]) -> List[str]:
                 errors.append(f"Gantt item #{i} has invalid task_name.")
                 continue
 
+            task_name = task_name.strip()
+
             if task_name in gantt_task_names:
-                errors.append(f"Duplicate Gantt task_name: {task_name}")
-            gantt_task_names.add(task_name)
+                errors.append(f"Duplicate Gantt task_name: '{task_name}'")
+            else:
+                gantt_task_names.add(task_name)
 
             if task_name not in wbs_task_names:
                 errors.append(f"Gantt task '{task_name}' does not exist in WBS.")
@@ -127,26 +172,57 @@ def validate_plan(plan: Dict[str, Any]) -> List[str]:
             if not isinstance(dependencies, list):
                 errors.append(f"Gantt task '{task_name}' must have a dependencies array.")
 
-    if isinstance(gantt_items, list):
         for item in gantt_items:
+            if not isinstance(item, dict):
+                continue
+
             task_name = item.get("task_name", "")
             dependencies = item.get("dependencies", [])
+
+            if isinstance(task_name, str):
+                task_name = task_name.strip()
+
             if isinstance(dependencies, list):
                 for dep in dependencies:
+                    if not isinstance(dep, str) or not dep.strip():
+                        errors.append(
+                            f"Gantt task '{task_name}' contains an invalid dependency value."
+                        )
+                        continue
+
+                    dep = dep.strip()
+
                     if dep not in gantt_task_names:
-                        errors.append(f"Task '{task_name}' depends on non-existing task '{dep}'.")
+                        errors.append(
+                            f"Task '{task_name}' depends on non-existing task '{dep}'."
+                        )
                     if dep == task_name:
                         errors.append(f"Task '{task_name}' cannot depend on itself.")
 
+    # -------------------------
+    # Risk validation
+    # -------------------------
     valid_levels = {"Low", "Medium", "High"}
-    if isinstance(plan.get("risk_log"), list):
-        for i, risk in enumerate(plan["risk_log"], start=1):
+    risk_items = plan.get("risk_log")
+
+    if not isinstance(risk_items, list):
+        errors.append("risk_log must be an array.")
+    else:
+        if len(risk_items) == 0:
+            errors.append("risk_log must not be empty.")
+
+        for i, risk in enumerate(risk_items, start=1):
             if not isinstance(risk, dict):
                 errors.append(f"Risk item #{i} is not an object.")
                 continue
 
+            risk_name = risk.get("risk")
+            if not isinstance(risk_name, str) or not risk_name.strip():
+                errors.append(f"Risk item #{i} has invalid risk description.")
+
             if risk.get("probability") not in valid_levels:
                 errors.append(f"Risk item #{i} has invalid probability.")
+
             if risk.get("impact") not in valid_levels:
                 errors.append(f"Risk item #{i} has invalid impact.")
 
