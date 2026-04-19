@@ -245,10 +245,10 @@ def generate_project_plan(
     response = client.models.generate_content(
         model=model_name,
         contents=scope_text,
-        config={
+  config={
             "system_instruction": system_prompt,
             "response_mime_type": "application/json",
-            "response_json_schema": plan_schema,
+            "response_schema": plan_schema,  # <--- التعديل هنا
             "temperature": temperature,
         },
     )
