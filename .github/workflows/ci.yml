@@ -34,8 +34,9 @@ jobs:
       - name: Install Testing Framework
         run: pip install pytest
 
-      # 5. تشغيل الاختبارات (نضع Placeholder حالياً كما سمح الدكتور)
-      - name: Run Tests
+      # 5. تشغيل اختبارات الوحدة (Unit Tests) للـ Backend
+      - name: Run Backend Unit Tests
+        working-directory: ./backend
         run: |
-          echo "Running initial backend checks..."
-          # سنقوم بكتابة الاختبارات الحقيقية في الخطوة القادمة
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          pytest tests/test_plan_models.py -v
