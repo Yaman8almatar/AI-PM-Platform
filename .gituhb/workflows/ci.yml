@@ -1,0 +1,41 @@
+name: AI PM Platform CI/CD
+
+# متى يتم تشغيل هذا المسار؟
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  security-and-testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. سحب الكود من المستودع
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # مهم جداً: يجلب كل تاريخ التعديلات لكي يفحصه GitLeaks
+
+      # 2. الفحص الأمني باستخدام GitLeaks (كما طلب الدكتور في المحاضرة)
+      - name: GitLeaks Security Scan
+        run: |
+          wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar -xz
+          ./gitleaks detect --source . -v
+
+      # 3. إعداد بيئة بايثون لاختبارات الـ Backend
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      # 4. تثبيت أداة الاختبار
+      - name: Install Testing Framework
+        run: pip install pytest
+
+      # 5. تشغيل الاختبارات (نضع Placeholder حالياً كما سمح الدكتور)
+      - name: Run Tests
+        run: |
+          echo "Running initial backend checks..."
+          # سنقوم بكتابة الاختبارات الحقيقية في الخطوة القادمة
