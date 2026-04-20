@@ -1,6 +1,5 @@
 {
   "type": "object",
-  "additionalProperties": false,
   "properties": {
     "project_name": {
       "type": "string"
@@ -9,7 +8,6 @@
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
         "properties": {
           "phase": {
             "type": "string"
@@ -18,29 +16,25 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "minItems": 1
+            }
           }
         },
         "required": [
           "phase",
           "tasks"
         ]
-      },
-      "minItems": 1
+      }
     },
     "gantt_data": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
         "properties": {
           "task_name": {
             "type": "string"
           },
           "duration_days": {
-            "type": "integer",
-            "minimum": 1
+            "type": "integer"
           },
           "dependencies": {
             "type": "array",
@@ -54,14 +48,12 @@
           "duration_days",
           "dependencies"
         ]
-      },
-      "minItems": 1
+      }
     },
     "risk_log": {
       "type": "array",
       "items": {
         "type": "object",
-        "additionalProperties": false,
         "properties": {
           "risk": {
             "type": "string"
@@ -92,8 +84,7 @@
           "impact",
           "mitigation"
         ]
-      },
-      "minItems": 1
+      }
     }
   },
   "required": [
