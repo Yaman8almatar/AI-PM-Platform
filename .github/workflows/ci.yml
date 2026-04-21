@@ -43,3 +43,10 @@ jobs:
         working-directory: ./backend
         run: |
           python -m pytest tests/ -v
+          
+          - name: Run Integration Tests
+        env:
+          PYTHONPATH: .  # هذا السطر السحري يخبر بايثون أين يبحث عن الملفات
+        run: |
+          cd backend
+          pytest tests/test_integration.py -v
