@@ -44,4 +44,11 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:$(pwd)
           cd backend
           pytest
+
+      - name: Run Integration Tests
+        run: |
+          cd backend
+          # إضافة المجلد الحالي إلى مسار بايثون ليعرف أن app هو موديول
+          export PYTHONPATH=$PYTHONPATH:$(pwd) 
+          pytest tests/test_integration.py
           

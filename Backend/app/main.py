@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.routes.generate_plan import router
 from app.core.config import get_settings
-from .api.routes.generate_plan import router  # أضف نقطة قبل api
+
 
 settings = get_settings()
 
