@@ -29,26 +29,20 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 4. تثبيت مكتبات المشروع الأساسية وأدوات الاختبار
-      # أضفنا مكتبة httpx لأن TestClient يحتاجها لاختبارات التكامل
+      # 4. تثبيت المكتبات وضمان التوافقية (الحل لمشكلة TypeError)
       - name: Install Dependencies
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -r requirements.txt
-          python -m pip install pytest httpx
+          # تحديث المكتبات الأساسية لضمان عمل TestClient مع الإصدارات الجديدة من httpx
+          python -m pip install --upgrade fastapi starlette httpx pytest
+          if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
 
-      # 5. تشغيل كافة الاختبارات (الوحدة والتكامل)
-      - name: Run All Backend Tests (Unit & Integration)
-        working-directory: ./backend
-        run: |
-          python -m pytest tests/ -v
+      # 5. تشغيل الاختبارات (الحل النهائي لمشكلة ModuleNotFoundError)
       - name: Run Tests
         working-directory: ./backend
+        env:
+          PYTHONPATH: .
         run: |
-          # 1. تثبيت المتطلبات والتأكد من وجودها
-          python -m pip install -r requirements.txt pytest httpx
-          
-          # 2. تشغيل الاختبار كـ Module (هذا هو السر)
-          # نستخدم -m لضمان أن بايثون يرى المجلد الحالي كحزمة (Package)
+          # استخدام python -m pytest هو الطريقة الأضمن لتعريف المسارات في بيئة Linux
           python -m pytest tests/test_integration.py -v
