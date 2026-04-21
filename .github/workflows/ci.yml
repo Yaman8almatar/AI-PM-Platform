@@ -39,8 +39,9 @@ jobs:
           python -m pip install pytest httpx
 
       # 5. تشغيل كافة الاختبارات (الوحدة والتكامل)
-      - name: Run All Backend Tests (Unit & Integration)
-        working-directory: ./backend
+      - name: Run Tests
         run: |
-          python -m pytest tests/ -v
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          cd backend
+          pytest
           
