@@ -37,10 +37,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
           python -m pip install pytest httpx
-      - name: Run Tests
-        run: |
-          cd backend
-          # إجبار بايثون على رؤية المجلد الحالي كمصدر للموديولات
-          export PYTHONPATH=$PYTHONPATH:.
-          # استخدام python -m يحل 90% من مشاكل الاستيراد في بايثون
-          python -m pytest tests/test_integration.py -v
+
+      # 5. تشغيل كافة الاختبارات (الوحدة والتكامل)
+      - name: Run All Backend Tests (Unit & Integration)
+        working-directory: ./backend
+        run: |
+          python -m pytest tests/ -v
+          
