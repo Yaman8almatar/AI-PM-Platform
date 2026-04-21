@@ -1,6 +1,11 @@
+import sys
+import os
+# إجبار التست على رؤية مجلد app
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import pytest
 from fastapi.testclient import TestClient
-from app.main import app
+from app.main import app  # الآن سيعرف بايثون أين يجد app
 
 # إنشاء عميل وهمي يحاكي الواجهة الأمامية (React)
 client = TestClient(app)
