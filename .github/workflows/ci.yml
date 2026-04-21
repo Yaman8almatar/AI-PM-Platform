@@ -36,10 +36,9 @@ jobs:
           # نسخة httpx 0.28.0 غيرت طريقة التعامل مع 'app' ولذلك نثبت نسخة مستقرة
           python -m pip install "httpx<0.28.0" "fastapi>=0.110.0" "starlette>=0.37.0" pytest
 
-      - name: Run Tests
+      - name: Run All Tests (Unit & Integration)
         working-directory: ./backend
         env:
           PYTHONPATH: .
         run: |
-          # التشغيل باستخدام python -m يضمن أن بايثون هو من يدير المسارات
-          python -m pytest tests/test_integration.py -v
+          python -m pytest tests/ -v
