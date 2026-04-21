@@ -43,4 +43,12 @@ jobs:
         working-directory: ./backend
         run: |
           python -m pytest tests/ -v
+      - name: Run Tests
+        working-directory: ./backend
+        run: |
+          # 1. تثبيت المتطلبات والتأكد من وجودها
+          python -m pip install -r requirements.txt pytest httpx
           
+          # 2. تشغيل الاختبار كـ Module (هذا هو السر)
+          # نستخدم -m لضمان أن بايثون يرى المجلد الحالي كحزمة (Package)
+          python -m pytest tests/test_integration.py -v
