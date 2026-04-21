@@ -38,17 +38,12 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install pytest httpx
 
-      # 5. تشغيل كافة الاختبارات (الوحدة والتكامل)
-      - name: Run Tests
-        run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)
-          cd backend
-          pytest
 
-      - name: Run Integration Tests
-        run: |
-          cd backend
-          # إضافة المجلد الحالي إلى مسار بايثون ليعرف أن app هو موديول
-          export PYTHONPATH=$PYTHONPATH:$(pwd) 
-          pytest tests/test_integration.py
-          
+      # 5. تشغيل كافة الاختبارات (الوحدة والتكامل)
+      - name: Run Tests
+        run: |
+          cd backend
+          # الآن نجعل المجلد الحالي (backend) هو المسار الرئيسي لبايثون
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
+          # نستخدم python -m pytest لضمان استدعاء الموديولات بشكل صحيح
+          python -m pytest tests/test_integration.py -v
