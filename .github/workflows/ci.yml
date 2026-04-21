@@ -44,9 +44,3 @@ jobs:
         run: |
           python -m pytest tests/ -v
           
-      - name: Run Integration Tests
-        working-directory: ./backend
-        env:
-          PYTHONPATH: .   # هذا هو السطر السحري الذي سيحل المشكلة!
-        run: |
-          python -m pytest tests/test_integration.py -v

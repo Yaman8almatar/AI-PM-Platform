@@ -1,5 +1,4 @@
 from locust import HttpUser, task, between
-
 class AIProjectUser(HttpUser):
     # المستخدم الوهمي سينتظر من 1 إلى 5 ثوانٍ بين كل ضغطة وأخرى (ليحاكي المستخدم البشري)
     wait_time = between(1, 5)
