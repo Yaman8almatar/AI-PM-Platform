@@ -30,10 +30,7 @@ jobs:
         working-directory: ./backend
         run: |
           python -m pip install --upgrade pip
-          # أولاً: تثبيت ما هو موجود في ملف المتطلبات
           if [ -f requirements.txt ]; then python -m pip install -r requirements.txt; fi
-          # ثانياً: إجبار السيرفر على نسخ متوافقة تحل مشكلة TypeError: Client.__init__
-          # نسخة httpx 0.28.0 غيرت طريقة التعامل مع 'app' ولذلك نثبت نسخة مستقرة
           python -m pip install "httpx<0.28.0" "fastapi>=0.110.0" "starlette>=0.37.0" pytest
 
       - name: Run All Tests (Unit & Integration)
