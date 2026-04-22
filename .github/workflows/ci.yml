@@ -1,0 +1,41 @@
+name: AI PM Platform CI/CD
+
+on:
+  push:
+    branches: [ "develop", "main" ]
+  pull_request:
+    branches: [ "develop", "main" ]
+
+jobs:
+  security-and-testing:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: GitLeaks Security Scan
+        run: |
+          wget -qO- https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz | tar -xz
+          ./gitleaks detect --source . -v
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        working-directory: ./backend
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-test.txt ]; then python -m pip install -r requirements-test.txt; fi
+          python -m pip install "httpx<0.28.0" "fastapi>=0.110.0" "starlette>=0.37.0" pytest
+
+      - name: Run All Tests (Unit & Integration)
+        working-directory: ./backend
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m pytest tests/ -v

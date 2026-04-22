@@ -1,53 +1,24 @@
-import logging
-from pathlib import Path
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.api.routes.plan import router as plan_router
+from app.api.routes.generate_plan import router
 from app.core.config import get_settings
+
 
 settings = get_settings()
 
-logging.basicConfig(
-    level=getattr(logging, settings.log_level.upper(), logging.INFO),
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
-)
-
-app = FastAPI(
-    title=settings.app_name,
-    version=settings.app_version,
-    description="Backend for AI-based Project Planning Automation",
-)
+app = FastAPI(title="AI PM Platform API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins_list,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(plan_router, prefix="/api", tags=["Plan"])
+app.include_router(router, prefix=settings.api_v1_prefix)
 
-
-@app.get("/", summary="Root")
-async def root():
-    return {
-        "message": "AI PM Platform Backend is running.",
-        "docs": "/docs",
-    }
-
-
-@app.get("/health", summary="Health check")
+@app.get("/health")
 async def health():
-    repo_root = Path(__file__).resolve().parents[2]
-    ai_core_path = repo_root / "ai-core"
-
-    return {
-        "status": "ok",
-        "mode": "real-ai",
-        "model": settings.ai_model_name,
-        "gemini_api_key_configured": bool(settings.gemini_api_key),
-        "ai_core_exists": ai_core_path.exists(),
-    }
+    return {"status": "ok", "mock_mode": settings.use_ai_mock}
+    
