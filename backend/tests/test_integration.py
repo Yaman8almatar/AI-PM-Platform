@@ -14,7 +14,6 @@ def test_health_check_endpoint():
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
-    # حذفنا السطر الذي يفحص 'mode' ليتطابق الاختبار مع ملف main.py الخاص بك
 
 def test_api_generate_plan_validation():
     # 2. اختبار تكامل طبقة الـ API مع طبقة التحقق (Models)
