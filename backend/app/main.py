@@ -21,3 +21,4 @@ app.include_router(router, prefix=settings.api_v1_prefix)
 @app.get("/health")
 async def health():
     return {"status": "ok", "mock_mode": settings.use_ai_mock}
+    
